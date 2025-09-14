@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>amyra Collections - Fashion & Home</title>
+    <meta name="description" content="Modern fashion e-commerce PWA for clothing and home textiles">
+    <meta name="theme-color" content="#20808D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="amyra Collections">
+
+    <!-- PWA Manifest (embedded as data URI) -->
+    <link rel="manifest" href="data:application/json;charset=utf-8;base64,ewogICJuYW1lIjogImFteXJhIENvbGxlY3Rpb25zIiwKICAic2hvcnRfbmFtZSI6ICJhbXlyYSIsCiAgImRlc2NyaXB0aW9uIjogIk1vZGVybiBmYXNoaW9uIGUtY29tbWVyY2UgUFdBIGZvciBjbG90aGluZyBhbmQgaG9tZSB0ZXh0aWxlcyIsCiAgInN0YXJ0X3VybCI6ICIvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAidGhlbWVfY29sb3IiOiAiIzIwODA4RCIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2ZmZmZmZiIsCiAgImljb25zIjogW10KfQ==">
+
+    <!-- Favicon as inline SVG -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iOCAgZmlsbD0iIzIwODA4RCIvPgo8dGV4dCB4PSIyOCIgeT0iMzgiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJBcmlhbCI+YS48L3RleHQ+Cjwvc3ZnPg==" type="image/svg+xml">
+
+    <!-- Google OAuth (external) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Install Prompt -->
+    <div id="installPrompt" class="install-prompt hidden">
+        <div class="install-prompt__content">
+            <div class="install-prompt__icon">📱</div>
+            <div class="install-prompt__text">
+                <h3>Install amyra Collections</h3>
+                <p>Get the full app experience on your device!</p>
+            </div>
+            <div class="install-prompt__actions">
+                <button class="btn btn--primary" id="installBtn">Install</button>
+                <button class="btn btn--outline" id="dismissBtn">Not Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header__content">
+            <div class="header__left">
+                <button class="header__menu-btn" id="menuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <h1 class="header__logo">amyra</h1>
+            </div>
+            <div class="header__right">
+                <button class="header__search-btn" id="searchBtn">🔍</button>
+                <button class="header__cart-btn" id="cartBtn">
+                    🛒<span class="cart-badge" id="cartBadge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div id="searchOverlay" class="search-overlay hidden">
+        <div class="search-overlay__content">
+            <div class="search-box">
+                <input type="text" placeholder="Search products..." id="searchInput" class="form-control">
+                <button class="search-close" id="searchClose">×</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Home View -->
+        <div id="homeView" class="view view--active">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero__content">
+                    <h2>Welcome to amyra Collections</h2>
+                    <p>Discover premium fashion &amp; home textiles</p>
+                    <button class="btn btn--primary hero__cta" onclick="showView('categoriesView')">Shop Now</button>
+                </div>
+            </section>
+
+            <!-- Featured Products -->
+            <section class="section">
+                <div class="section__header">
+                    <h3>Featured Products</h3>
+                    <button class="btn btn--outline" onclick="showView('categoriesView')">View All</button>
+                </div>
+                <div class="product-grid" id="featuredProducts"><!-- populated by JS --></div>
+            </section>
+
+            <!-- Categories Preview -->
+            <section class="section">
+                <h3>Shop by Category</h3>
+                <div class="category-grid" id="categoryGrid"><!-- populated by JS --></div>
+            </section>
+        </div>
+
+        <!-- Categories View -->
+        <div id="categoriesView" class="view">
+            <div class="category-tabs">
+                <button class="category-tab category-tab--active" data-category="all">All</button>
+                <button class="category-tab" data-category="men">👨 Men</button>
+                <button class="category-tab" data-category="women">👩 Women</button>
+                <button class="category-tab" data-category="kids">👶 Kids</button>
+                <button class="category-tab" data-category="general">🏠 Home</button>
+            </div>
+            <div class="product-grid" id="categoryProducts"><!-- populated by JS --></div>
+        </div>
+
+        <!-- Product Detail View -->
+        <div id="productView" class="view">
+            <div class="product-detail" id="productDetail"></div>
+        </div>
+
+        <!-- Cart View -->
+        <div id="cartView" class="view">
+            <div class="cart-container">
+                <div class="cart-header"><h2>Shopping Cart</h2></div>
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-summary" id="cartSummary">
+                    <div class="cart-total">Total: ₹<span id="cartTotal">0</span></div>
+                    <button class="btn btn--primary btn--full-width" id="checkoutBtn">Proceed to Checkout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="profileView" class="view">
+            <div class="profile-container">
+                <div class="auth-section" id="authSection">
+                    <div class="auth-content">
+                        <h2>Sign In to Continue</h2>
+                        <p>Access your account and manage orders</p>
+                        <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+                        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+                    </div>
+                </div>
+
+                <div class="profile-content hidden" id="profileContent">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatar">👤</div>
+                        <div class="profile-info">
+                            <h3 id="profileName">User Name</h3>
+                            <p id="profileEmail">user@email.com</p>
+                        </div>
+                        <button class="btn btn--outline" id="signOutBtn">Sign Out</button>
+                    </div>
+                    <div class="profile-menu">
+                        <button class="profile-menu-item" id="ordersBtn">📦 My Orders</button>
+                        <button class="profile-menu-item" id="adminPanelBtn" style="display:none;">⚙️ Admin Panel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin View -->
+        <div id="adminView" class="view">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h2>Admin Panel</h2>
+                    <button class="btn btn--outline" onclick="showView('profileView')">Back</button>
+                </div>
+                <div class="admin-tabs">
+                    <button class="admin-tab admin-tab--active" data-tab="products">Products</button>
+                    <button class="admin-tab" data-tab="orders">Orders</button>
+                    <button class="admin-tab" data-tab="analytics">Analytics</button>
+                </div>
+                <div class="admin-content">
+                    <div class="admin-tab-content admin-tab-content--active" id="productsTab">
+                        <div class="admin-section-header">
+                            <h3>Product Management</h3>
+                            <button class="btn btn--primary" id="addProductBtn">Add Product</button>
+                        </div>
+                        <div class="admin-product-list" id="adminProductList"></div>
+                    </div>
+                    <div class="admin-tab-content" id="ordersTab"><h3>Order Management</h3><div id="adminOrders">No orders found.</div></div>
+                    <div class="admin-tab-content" id="analyticsTab">
+                        <h3>Analytics Dashboard</h3>
+                        <div class="analytics-grid">
+                            <div class="analytics-card"><h4>Total Products</h4><div class="analytics-value" id="totalProducts">0</div></div>
+                            <div class="analytics-card"><h4>Total Orders</h4><div class="analytics-value" id="totalOrders">0</div></div>
+                            <div class="analytics-card"><h4>Revenue</h4><div class="analytics-value">₹<span id="totalRevenue">0</span></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout View -->
+        <div id="checkoutView" class="view">
+            <div class="checkout-container">
+                <div class="checkout-header"><h2>Checkout</h2></div>
+                <div class="checkout-content">
+                    <div class="checkout-section">
+                        <h3>Delivery Address</h3>
+                        <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-control" id="deliveryName" required></div>
+                        <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-control" id="deliveryPhone" required></div>
+                        <div class="form-group"><label class="form-label">Address</label><textarea class="form-control" id="deliveryAddress" rows="3" required></textarea></div>
+                        <div class="form-group"><label class="form-label">Pincode</label><input type="text" class="form-control" id="deliveryPincode" required></div>
+                    </div>
+                    <div class="checkout-section">
+                        <h3>Payment Method</h3>
+                        <div class="payment-methods">
+                            <label class="payment-method"><input type="radio" name="payment" value="cod" checked><span class="payment-method__content"><span class="payment-method__icon">💵</span><span class="payment-method__text"><strong>Cash on Delivery</strong><small>Pay when your order arrives</small></span></span></label>
+                            <label class="payment-method"><input type="radio" name="payment" value="upi"><span class="payment-method__content"><span class="payment-method__icon">📱</span><span class="payment-method__text"><strong>UPI Payment</strong><small>Pay using UPI apps</small></span></span></label>
+                            <label class="payment-method"><input type="radio" name="payment" value="card"><span class="payment-method__content"><span class="payment-method__icon">💳</span><span class="payment-method__text"><strong>Card Payment</strong><small>Credit/Debit cards</small></span></span></label>
+                        </div>
+                    </div>
+                    <div class="checkout-summary">
+                        <h3>Order Summary</h3>
+                        <div id="checkoutItems" class="checkout-items"></div>
+                        <div class="checkout-total"><div class="checkout-total-row"><span>Subtotal:</span><span>₹<span id="checkoutSubtotal">0</span></span></div><div class="checkout-total-row"><span>Delivery:</span><span>Free</span></div><div class="checkout-total-row checkout-total-row--final"><span>Total:</span><span>₹<span id="checkoutTotal">0</span></span></div></div>
+                        <button class="btn btn--primary btn--full-width" id="placeOrderBtn">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item nav-item--active" data-view="homeView"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+        <button class="nav-item" data-view="categoriesView"><span class="nav-icon">📱</span><span class="nav-label">Categories</span></button>
+        <button class="nav-item" data-view="cartView"><span class="nav-icon">🛒</span><span class="nav-label">Cart</span><span class="nav-badge" id="navCartBadge">0</span></button>
+        <button class="nav-item" data-view="profileView"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"><span id="toastMessage"></span></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner hidden"><div class="spinner"></div></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
